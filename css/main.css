@@ -1,0 +1,71 @@
+@import url(https://fonts.googleapis.com/css?family=Covered+By+Your+Grace);
+
+// resets
+html, body, div, iframe, p{margin:0;padding:0}h1, h2, h3{font-weight:normal}img{border:0}body{-webkit-font-smoothing:antialiased;font-size:1.3em;}
+
+#otherworld {
+    overflow:hidden;
+    height:100vh;
+    width:100vw;
+    position:absolute;
+    top:0;
+    left:0;
+    font-family:"Covered By Your Grace",sans-serif;
+}
+
+#otherworld > div {
+    min-width:300px;
+    max-width:780px;
+    width:55%;
+    margin:10px auto;
+    box-sizing:border-box;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+#gamebox {
+    height:70vh;
+}
+
+#gamebox::after {
+    // shadow
+}
+
+#gamebox > p {
+    margin-bottom:20px;
+    line-height:1.4em;
+    display:block;
+}
+
+#inputbox {
+    height:20vh;
+}
+
+#inputbox > input {
+    display:block;
+    outline:none;
+    border-bottom;1px solid grey;
+    width:100%;
+    padding:10px 0;
+    box-sizing:border-box;
+    font-size:20px;
+    line-height:1.3em;
+    transition:border-color 0.5s;
+    border:none;
+    border-bottom:1px solid grey;
+    font-family:"Covered By Your Grace",sans-serif;
+}
+
+#inputbox > input:focus {
+    outline:none;
+    border-bottom:1px solid black;
+}
+
+@media only screen and (max-width:700px) {
+    // mobile media query stuff
+    #ui-settings {
+        display:none;
+    }
+}
+
+
