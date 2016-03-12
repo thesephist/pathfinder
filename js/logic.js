@@ -71,6 +71,9 @@ var MessagesView = Backbone.View.extend({
             this.$el.append(n.render().$el);
         }
 
+        var messageList = $("#messagebox");
+        messageList.scrollTop(messageList[0].scrollHeight);
+
         return this;
     },
 

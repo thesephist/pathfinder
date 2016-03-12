@@ -1,6 +1,8 @@
 // Project Pathfinder JavaScript storyline model
 // this will be served to the client encrypted with v.js to prevent cheating
 
+// Also later make a reserve of more than a dozen phrases for syntax errors, so it doesn't get repetitive
+
 var storyline = {
 
     "root": { // not a location
@@ -62,11 +64,11 @@ var commands = [
     // look
     function(object) {
         // wtf is this supposed to do idek
+        // I guess "look around" and report what you'd be seeing
     },
 
     // help
     function(object) {
-        console.log("object is " + object);
         return "You can go, take, look, and get";
     },
 
@@ -80,6 +82,44 @@ var commands = [
     }
 ];
 
+var inquiries = ["where","who","why","what"];
+var inquiriesAnswers = [
+    // where
+    function(){
+        return "You are in the " + myLocation + ". ";
+    },
+
+    // who
+    function(){
+        return "Well, that's for you to find out.";
+    },
+
+    // why
+    function(){
+        return "Why are you here? Why are you anything? What's the world? All good questions, all without answers.";
+    },
+
+    // what
+    function(hand){
+        // should this be what's in hand or what's in the room? For now, the latter by default
+        message = "There's ";
+
+        if (hand) {
+            onHand.forEach(function(obj){
+                message += obj;
+            });
+
+            return message + ". ";
+        }
+
+        aroundMe.forEach(function(obj){
+            message += obj;
+        });
+
+        return message + ". ";
+    },
+];
+
 var myLocation = "beginning"; // reference to a current location
 var onHand = []; // a list of items on hand
 var aroundMe = []; // list of items in the environment
@@ -89,11 +129,39 @@ var myHistory = []; // a list of locations I was before
 var commandList = ["take", "read", "look", "help", "get", "go"]; // "go" is always at the end
 var commandNoArgs = ["help"];
 var commandPast = ["took", "read", "saw", "helped", "got", "went"];
-var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this"];
+var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some"];
+
+function stripPunc(word) {
+    // only operates on single words
+    return word.replace(/[.,\/!?;:()]/g,"");
+}
+
+function includes(str, array) {
+    
+    // checks if any words from given array occurs in a string str
+    inv = false;
+    sctr = str.toLowerCase();
+
+    array.forEach(function(key){
+        if (sctr.indexOf(key) >= 0) {
+            inv = key;
+        }
+    });
+
+    return inv;
+}
 
 function parseMessage(input) {
+
     // given an input phrase, this parses it into a JS object
-    
+ 
+    // but first capture questions as exceptions
+    if (includes(input, inquiries)) {
+        message = inquiriesAnswers[inquiries.indexOf(includes(input, inquiries))]();
+
+        return message;
+    }
+
     // will later also have to intercept questions, like "who are you?" and "where am I?"
 
     var inputObject = {
@@ -112,9 +180,12 @@ function parseMessage(input) {
             if (commandNoArgs.indexOf(key) != -1) {
                 inputObject.objects.push("_null");
             }
-            inputObject.actions.push(key);
+            inputObject.actions.push(stripPunc(key));
+
+            // also, if the action does not require an objective than push a "_null" here to objects. 
+
         } else {
-            inputObject.objects.push(key);
+            inputObject.objects.push(stripPunc(key));
         }
     }
    
@@ -122,14 +193,22 @@ function parseMessage(input) {
 }
 
 function returnMessage(inputObject) {
+ 
     // given current state of the game and new inputdata from user, return next message
 
     var message = "";
 
+    // special case for questions -- they bypass the logic process here
+    if (typeof inputObject == "string") {
+        return inputObject;
+    }
+
     actions = inputObject.actions;
     objects = inputObject.objects;
 
-    console.log(inputObject);
+    if (actions.length != objects.length) {
+        return "Sorry? You're not really making sense.";
+    }
 
     // make it into a less insane format
     inputList = [];
@@ -150,11 +229,12 @@ function returnMessage(inputObject) {
 
     // takes care of movement
     var isRepeat = 0;
+    
     if (actions.indexOf("go") > -1) {
         myHistory.push(myLocation);
 
         myLocation = objects[actions.indexOf("go")];
-        message += "You are now in the " + myLocation + ".";
+        message += "You are now in the " + myLocation;
 
         isRepeat += 1;
     }
@@ -167,25 +247,20 @@ function returnMessage(inputObject) {
             
             result = commands[commandList.indexOf(word)](objects[actions.indexOf(word)]);
 
-            // exceptions
-            if (result == undefined) {
-                result = "nothing";
-            }
-            
-            if (isRepeat > 1) {
+            if (isRepeat >= 1 || actions.length >= 3) {
                 message += ", ";
             }
-            if (actions.length == isRepeat) {
-                message += "and ";
+            if (actions.length == isRepeat + 1 && actions.length > 1) {
+                message += " and ";
             }
-
+            // must add oxford comma
+            
             if (objects[actions.indexOf(word)] != "_null") {
                 message += "You " + commandPast[commandList.indexOf(word)] + " " + result;
             } else {
                 message += result;
             }
 
-            console.log(isRepeat);
             isRepeat += 1;
         }
     });
