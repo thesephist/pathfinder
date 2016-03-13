@@ -16,3 +16,5 @@ BackboneJS models and views are completely responsible for serving up user inter
 
 The storyline script accepts natural language input and interprets it with a database of narrative elements and the gameworld to offer replies, narrations, and other elements to expand the player's knowledge of the gameworld.
 
+__ Setup requires Server Side Includes to be working properly with Apache / Nginx syntax __
+

@@ -1,5 +1,7 @@
 // It's a BackboneJS Application
 
+var showTimer;
+
 // model for message
 var Message = Backbone.Model.extend({
     
@@ -28,7 +30,12 @@ var MessageView = Backbone.View.extend({
 
     render: function() {
         this.$el.append(this.model.escape("content"));
-        
+ 
+        setTimeout(function(){
+            $("#messagebox").children().addClass("visible");
+            console.log("classed");
+        },5);
+  
         return this;
     }
 
@@ -47,8 +54,6 @@ var MessagesView = Backbone.View.extend({
 
     newMessage: function(newMessage) {
       
-        // this will later also include responses from the storyline.js and interact with that JS
-
         var self = this;
 
         // new message logic here: {
@@ -62,17 +67,23 @@ var MessagesView = Backbone.View.extend({
         var m = new MessageView({ model: newPrompter });
         this.$el.append(m.render().$el);
 
-        if (reply != "_null") {
-            // post reply
-            var newReplyPrompter = new Message({ content: reply });
-            startmessages.add(newReplyPrompter);
-            
-            var n = new MessageView({ model: newReplyPrompter });
-            this.$el.append(n.render().$el);
-        }
-
         var messageList = $("#messagebox");
         messageList.scrollTop(messageList[0].scrollHeight);
+ 
+        setTimeout(function(){
+          
+            if (reply != "_null") {
+                // post reply
+                var newReplyPrompter = new Message({ content: reply });
+                startmessages.add(newReplyPrompter);
+                
+                var n = new MessageView({ model: newReplyPrompter });
+                self.$el.append(n.render().$el);
+            }
+
+            var messageList = $("#messagebox");
+            messageList.scrollTop(messageList[0].scrollHeight);
+        }, 1200);
 
         return this;
     },

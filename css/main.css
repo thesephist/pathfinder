@@ -27,15 +27,25 @@ html, body, div, iframe, p{margin:0;padding:0}h1, h2, h3{font-weight:normal}img{
     margin-bottom:20px;
     line-height:1.4em;
     display:block;
+    opacity:0;
 }
 
 #messagebox > p:first-child {
     margin-top:calc(85vh - 10em);
 }
 
+#messagebox > p.visible {
+    transition:opacity 2s;
+    opacity: 1;
+}
+
 #messagebox {
     max-height:calc(85vh - 50px);
     overflow-y:auto;
+}
+
+#messagebox::-webkit-scrollbar {
+    display:none;
 }
 
 #messagebox::after {

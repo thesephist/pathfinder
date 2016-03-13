@@ -1,17 +1,17 @@
 // Project Pathfinder JavaScript storyline model
-// this will be served to the client encrypted with v.js to prevent cheating
+// the storyline.JSON of this will be served to the client encrypted with v.js to prevent cheating
 
 // Also later make a reserve of more than a dozen phrases for syntax errors, so it doesn't get repetitive
 
-var storyline = {
+var storyline = [
 
-    "root": { // not a location
+    { // not a location
         "actions": {
             // list of functions paired to keywords
         },
     },
 
-    "beginning": { // will need a more creative name here
+    { // will need a more creative name here
         "objects": ["lighter","bag"],
         "narration": [
                         "Wait",
@@ -33,7 +33,7 @@ var storyline = {
         "futures": ["commons"] // list of room references
     },
 
-    "commons": {
+    {
         "objects": ["book","candle","water","console"],
         "narration": [
                         "This is the commons."
@@ -41,17 +41,28 @@ var storyline = {
         "futures": ["overture"]
     },
 
-    "overture": {
+    {
         "objects": ["candle","phone"]
     }
+];
+
+var locationlist = [ "root", "the Beginning", "the Commons", "the Overture" ];
+var inputLocationlist = ["root", "beginning", "commons", "overture" ];
+
+function getStorylineJSON(locName) {
+    return storyline[inputLocationlist.indexOf(locName)];
 };
 
 var commands = [
     // take
     function(object) {
-        onHand.push(object);
-
-        return "the " + object;
+        if (aroundMe.indexOf(object) != -1) {
+            onHand.push(object);
+        
+            return "the " + object;
+        } else {
+            return "nothing. There isn't a " + object + " here";
+        }
     },
 
     // read
@@ -63,8 +74,13 @@ var commands = [
 
     // look
     function(object) {
-        // wtf is this supposed to do idek
-        // I guess "look around" and report what you'd be seeing
+        if (!(aroundMe[0])) {
+            return "nothing";
+        } else if (aroundMe.length == 1) {
+            return "the " + aroundMe[0].toString();
+        }
+        
+        return aroundMe.join(", ");
     },
 
     // help
@@ -86,7 +102,9 @@ var inquiries = ["where","who","why","what"];
 var inquiriesAnswers = [
     // where
     function(){
-        return "You are in the " + myLocation + ". ";
+        cango = myFutures.join(", ");
+        
+        return "You are in the " + myLocation + ". You can go to " + cango;
     },
 
     // who
@@ -104,32 +122,36 @@ var inquiriesAnswers = [
         // should this be what's in hand or what's in the room? For now, the latter by default
         message = "There's ";
 
-        if (hand) {
-            onHand.forEach(function(obj){
-                message += obj;
-            });
+        if (includes(hand, ["hand", "have", "hold"])) {
+            message += onHand.join(", ");
+  
+            if (onHand.length == 0) {
+                return "You have nothing.";
+            }
 
             return message + ". ";
         }
 
-        aroundMe.forEach(function(obj){
-            message += obj;
-        });
+        message += aroundMe.join(", ");
+ 
+        if (aroundMe.length == 0) {
+            return "There's nothing around you.";
+        }
 
         return message + ". ";
     },
 ];
 
 var myLocation = "beginning"; // reference to a current location
+var myFutures = ["commons"]; // futures
 var onHand = []; // a list of items on hand
 var aroundMe = []; // list of items in the environment
-
 var myHistory = []; // a list of locations I was before
 
 var commandList = ["take", "read", "look", "help", "get", "go"]; // "go" is always at the end
 var commandNoArgs = ["help"];
 var commandPast = ["took", "read", "saw", "helped", "got", "went"];
-var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some"];
+var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some", "now", "then", "again"];
 
 function stripPunc(word) {
     // only operates on single words
@@ -157,7 +179,7 @@ function parseMessage(input) {
  
     // but first capture questions as exceptions
     if (includes(input, inquiries)) {
-        message = inquiriesAnswers[inquiries.indexOf(includes(input, inquiries))]();
+        message = inquiriesAnswers[inquiries.indexOf(includes(input, inquiries))](input);
 
         return message;
     }
@@ -231,10 +253,22 @@ function returnMessage(inputObject) {
     var isRepeat = 0;
     
     if (actions.indexOf("go") > -1) {
-        myHistory.push(myLocation);
 
-        myLocation = objects[actions.indexOf("go")];
-        message += "You are now in the " + myLocation;
+        if (myFutures.indexOf(objects[actions.indexOf("go")]) != -1) {
+            myHistory.push(myLocation);
+            myLocation = objects[actions.indexOf("go")];
+            message += "You are now in the " + myLocation;
+            
+            locationObject = getStorylineJSON(myLocation);
+
+            console.log(locationObject);
+
+            aroundMe = locationObject.objects;
+            myFutures = locationObject.futures;
+            
+        } else {
+            message += "You can't go there. Sorry.";
+        }
 
         isRepeat += 1;
     }
@@ -253,7 +287,7 @@ function returnMessage(inputObject) {
             if (actions.length == isRepeat + 1 && actions.length > 1) {
                 message += " and ";
             }
-            // must add oxford comma
+            // must add oxford comma here... #TODO
             
             if (objects[actions.indexOf(word)] != "_null") {
                 message += "You " + commandPast[commandList.indexOf(word)] + " " + result;
@@ -275,7 +309,7 @@ function returnMessage(inputObject) {
         message = "I can't quite understand...";
     }
 
-    return message;
+    return message + ".";
 }
 
 
