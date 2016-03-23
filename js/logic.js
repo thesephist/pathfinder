@@ -1,6 +1,7 @@
 // It's a BackboneJS Application
 
 var showTimer;
+var inputCount = 0;
 
 // model for message
 var Message = Backbone.Model.extend({
@@ -33,7 +34,6 @@ var MessageView = Backbone.View.extend({
  
         setTimeout(function(){
             $("#messagebox").children().addClass("visible");
-            console.log("classed");
         },5);
   
         return this;
@@ -123,11 +123,16 @@ var InputView = Backbone.View.extend({
             this.eventstack.trigger("newInput", newInput);
 
             $inputBox.value = "";
+            inputCount++;
+
+            if (inputCount > 3) {
+                document.getElementById("inputline").placeholder = "";
+            }
         }
     },
 
     render: function() {
-        this.$el.html("<input id='inputline' placeholder='What next?' autofocus></input>");
+        this.$el.html("<input id='inputline' placeholder='Do something...' autofocus></input>");
 
         return this;
     }

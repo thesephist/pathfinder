@@ -149,7 +149,7 @@ var aroundMe = []; // list of items in the environment
 var myHistory = []; // a list of locations I was before
 
 var commandList = ["take", "read", "look", "help", "get", "go"]; // "go" is always at the end
-var commandNoArgs = ["help"];
+var commandNoArgs = ["restart"];
 var commandPast = ["took", "read", "saw", "helped", "got", "went"];
 var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some", "now", "then", "again"];
 
@@ -260,8 +260,6 @@ function returnMessage(inputObject) {
             message += "You are now in the " + myLocation;
             
             locationObject = getStorylineJSON(myLocation);
-
-            console.log(locationObject);
 
             aroundMe = locationObject.objects;
             myFutures = locationObject.futures;

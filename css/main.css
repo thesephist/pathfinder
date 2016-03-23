@@ -11,6 +11,8 @@ html, body, div, iframe, p{margin:0;padding:0}h1, h2, h3{font-weight:normal}img{
     top:0;
     left:0;
     font-family:"Covered By Your Grace",sans-serif;
+    color:white;
+    background-color:black;
 }
 
 #otherworld > div {
@@ -51,7 +53,7 @@ html, body, div, iframe, p{margin:0;padding:0}h1, h2, h3{font-weight:normal}img{
 #messagebox::after {
     display: block;
     content: "";
-    background: linear-gradient(to top, rgba(0,0,0,0), white 85%, white 100%);
+    background: linear-gradient(to top, rgba(0,0,0,0), black 85%, black 100%);
     position: absolute;
     top: 0;
     left: 0;
@@ -81,6 +83,8 @@ html, body, div, iframe, p{margin:0;padding:0}h1, h2, h3{font-weight:normal}img{
     border:none;
     border-bottom:1px solid grey;
     font-family:"Covered By Your Grace",sans-serif;
+    color:white;
+    background-color:black;
 }
 
 #inputbox > input:focus {

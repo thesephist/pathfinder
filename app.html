@@ -17,6 +17,16 @@
     <!-- will be dynamically generated -->
 
     <div id="otherworld">
+      <div id="audiobox">
+        <audio autoplay loop src="/pathfinder/soundtrack/1.mp3"> <!-- controls should be removed and replaced with a custom menu later -->
+          Audio is not supported in your browser.
+        </audio>
+        <div id="audio-controls">
+          <!-- controls will go here -->
+          <!-- JANKY AF solution for now -->
+          <a style="font-size:16px;text-decoration:none;position:fixed;top:20px;left:20px;color:white;z-index:10" href="#" onclick="if($('#audiobox > audio')[0].paused){$('#audiobox > audio')[0].play()}else{$('#audiobox > audio')[0].pause()}">PLAY/PAUSE MUSIC</a>
+        </div>
+      </div>
       <div id="gamebox">
       </div>
     </div>
