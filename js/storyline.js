@@ -3,6 +3,7 @@
 
 // Also later make a reserve of more than a dozen phrases for syntax errors, so it doesn't get repetitive
 
+var narrationInterval;
 var storyline = [
 
     { // not a location
@@ -20,7 +21,7 @@ var storyline = [
                         "Hold on, I think it's you",
                         "Oh, god, please let it be you...",
                         "...",
-                        "It is! It <i>is</i> you!",
+                        "It is! It is you!",
                         "Please, don't turn away. Don't leave me. Just give me one second.",
                         "I need to know it's you, for sure.",
                         "...",
@@ -28,29 +29,36 @@ var storyline = [
                         "I'm guessing you're pretty confused right now. That's okay.",
                         "You probably won't remember me, but I know you.",
                         "I'm Aurelia. I used to be so close to you... but you fell... you fell Asleep.",
-                        "You're in a coma, Remmi. I hope you can here me. Please say something." // saying anything here to the game console progresses the play
+                        "You're in a coma, Remmi. I hope you can here me.",
+                        "We're here, and we're here to help you out. But I don't know where you are.",
+                        "The best solution we have is just for you to look around. See what you can do."
                       ],
-        "futures": ["commons"] // list of room references
+        "futures": ["commons"]
     },
 
     {
         "objects": ["book","candle","water","console"],
         "narration": [
-                        "This is the commons."
+                        "This is the commons.",
+                        "From here, you can go to other major rooms of this world."
                      ],
         "futures": ["overture"]
     },
 
     {
-        "objects": ["candle","phone"]
+        "objects": ["candle","phone"],
+        "narration": [
+                        "Welcome to Overture, the beginning of it all!"
+                     ],
+        "futures": []
     }
 ];
 
 var locationlist = [ "root", "the Beginning", "the Commons", "the Overture" ];
-var inputLocationlist = ["root", "beginning", "commons", "overture" ];
+var rawLocationlist = ["root", "beginning", "commons", "overture" ];
 
 function getStorylineJSON(locName) {
-    return storyline[inputLocationlist.indexOf(locName)];
+    return storyline[rawLocationlist.indexOf(locName)];
 };
 
 var commands = [
@@ -59,7 +67,11 @@ var commands = [
         if (aroundMe.indexOf(object) != -1) {
             onHand.push(object);
         
+            objIndex = aroundMe.indexOf(object);
+            aroundMe.splice(objIndex, 1);
+
             return "the " + object;
+
         } else {
             return "nothing. There isn't a " + object + " here";
         }
@@ -85,16 +97,7 @@ var commands = [
 
     // help
     function(object) {
-        return "You can go, take, look, and get";
-    },
-
-    // get
-    function(object) {
-        // why does this function even exist
-
-        onHand.push(object);
-
-        return "the " + object;
+        return "You can go, take, look, and read";
     }
 ];
 
@@ -104,7 +107,13 @@ var inquiriesAnswers = [
     function(){
         cango = myFutures.join(", ");
         
-        return "You are in the " + myLocation + ". You can go to " + cango;
+        response = "You are in the " + myLocation + ". You can go to " + cango;
+
+        if (myFutures.length == 0) {
+            response = "You are in the " + myLocation + ". You can't go anywhere.";
+        }
+
+        return response;
     },
 
     // who
@@ -123,6 +132,8 @@ var inquiriesAnswers = [
         message = "There's ";
 
         if (includes(hand, ["hand", "have", "hold"])) {
+            message = "You have ";
+
             message += onHand.join(", ");
   
             if (onHand.length == 0) {
@@ -148,9 +159,9 @@ var onHand = []; // a list of items on hand
 var aroundMe = []; // list of items in the environment
 var myHistory = []; // a list of locations I was before
 
-var commandList = ["take", "read", "look", "help", "get", "go"]; // "go" is always at the end
+var commandList = ["take", "read", "look", "help", "go"]; // "go" is always at the end
 var commandNoArgs = ["restart"];
-var commandPast = ["took", "read", "saw", "helped", "got", "went"];
+var commandPast = ["took", "read", "saw", "helped", "went"];
 var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some", "now", "then", "again"];
 
 function stripPunc(word) {
@@ -173,6 +184,28 @@ function includes(str, array) {
     return inv;
 }
 
+function narrate(narrationList) {
+    narrated = 0;
+
+    narrationInterval = setInterval(function(){
+        
+        line = narrationList[narrated];
+
+        var newPrompter = new Message({ content: line });
+        startmessages.add(newPrompter);
+
+        var m = new MessageView({ model: newPrompter });
+        messageBox.$el.append(m.render().$el);
+
+        var messageList = $("#messagebox");
+        messageList.scrollTop(messageList[0].scrollHeight);
+            
+        narrated ++;
+
+    }, 2200);
+
+};
+
 function parseMessage(input) {
 
     // given an input phrase, this parses it into a JS object
@@ -182,6 +215,13 @@ function parseMessage(input) {
         message = inquiriesAnswers[inquiries.indexOf(includes(input, inquiries))](input);
 
         return message;
+    }
+
+    // and capture the skip keyword
+    if (input.trim().toLowerCase() == "skip") {
+        clearInterval(narrationInterval);
+
+        return null;
     }
 
     // will later also have to intercept questions, like "who are you?" and "where am I?"
@@ -225,6 +265,11 @@ function returnMessage(inputObject) {
         return inputObject;
     }
 
+    // nulls also exist
+    if (!inputObject) {
+        return "_null";
+    }
+
     actions = inputObject.actions;
     objects = inputObject.objects;
 
@@ -263,7 +308,12 @@ function returnMessage(inputObject) {
 
             aroundMe = locationObject.objects;
             myFutures = locationObject.futures;
-            
+
+            // do some narration
+            narrationList = storyline[rawLocationlist.indexOf(myLocation)].narration;
+
+            narrate(narrationList);
+
         } else {
             message += "You can't go there. Sorry.";
         }

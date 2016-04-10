@@ -83,7 +83,7 @@ var MessagesView = Backbone.View.extend({
 
             var messageList = $("#messagebox");
             messageList.scrollTop(messageList[0].scrollHeight);
-        }, 1200);
+        }, 1400);
 
         return this;
     },
@@ -144,11 +144,7 @@ var eventStack = _.extend({}, Backbone.Events)
 
 // instantiate Models
 var startmessages = new Messages();
-startmessages.add([
-    new Message({ content: "This is your world" }),
-    new Message({ content: "You are free to create" }),
-    new Message({ content: "But not free to leave" })
-]);
+narrate(storyline[1].narration);
 
 // instantiate DOM elements
 var messageBox = new MessagesView({ collection: startmessages, eventStack: eventStack });
