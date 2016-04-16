@@ -1,18 +1,20 @@
 // Project Pathfinder JavaScript storyline model
-// the storyline.JSON of this will be served to the client encrypted with v.js to prevent cheating
+// the storyline.json portion of this will be served to the client encrypted with v.js to prevent cheating
 
 // Also later make a reserve of more than a dozen phrases for syntax errors, so it doesn't get repetitive
 
+var myLocation = "beginning"; // reference to a current location
+var myFutures = ["commons"]; // futures
+var onHand = []; // a list of items on hand
+var aroundMe = []; // list of items in the environment
+var myHistory = []; // a list of locations I was before
+
+var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some", "now", "then", "again"];
 var narrationInterval;
-var storyline = [
 
-    { // not a location
-        "actions": {
-            // list of functions paired to keywords
-        },
-    },
+var storyline = {
 
-    { // will need a more creative name here
+    "beginning": { // will need a more creative name here
         "objects": ["lighter","bag"],
         "narration": [
                         "Wait",
@@ -20,7 +22,6 @@ var storyline = [
                         "Remmi?",
                         "Hold on, I think it's you",
                         "Oh, god, please let it be you...",
-                        "...",
                         "It is! It is you!",
                         "Please, don't turn away. Don't leave me. Just give me one second.",
                         "I need to know it's you, for sure.",
@@ -36,78 +37,89 @@ var storyline = [
         "futures": ["commons"]
     },
 
-    {
+    "commons": {
         "objects": ["book","candle","water","console"],
         "narration": [
-                        "This is the commons.",
+                        "Welcome",
                         "From here, you can go to other major rooms of this world."
                      ],
         "futures": ["overture"]
     },
 
-    {
+    "overture": {
         "objects": ["candle","phone"],
         "narration": [
                         "Welcome to Overture, the beginning of it all!"
                      ],
         "futures": []
     }
-];
-
-var locationlist = [ "root", "the Beginning", "the Commons", "the Overture" ];
-var rawLocationlist = ["root", "beginning", "commons", "overture" ];
-
-function getStorylineJSON(locName) {
-    return storyline[rawLocationlist.indexOf(locName)];
 };
 
-var commands = [
-    // take
-    function(object) {
-        if (aroundMe.indexOf(object) != -1) {
-            onHand.push(object);
-        
-            objIndex = aroundMe.indexOf(object);
-            aroundMe.splice(objIndex, 1);
-
-            return "the " + object;
-
-        } else {
-            return "nothing. There isn't a " + object + " here";
-        }
+var commands = {
+    
+    "go": {
+        "pastForm": "went",
+        "hasArgs": true
     },
 
-    // read
-    function(object) {
-        // readable things should be assigned content beforehand and put into storyline.json as variables
+    "take": {
+        "action": function(object) {
+            if (aroundMe.indexOf(object) != -1) {
+                onHand.push(object);
+            
+                objIndex = aroundMe.indexOf(object);
+                aroundMe.splice(objIndex, 1);
 
-        return ", " + myLocation.objects[myLocation.objects.indexOf(object)].words; // this is sketchy; needs work
+                return "the " + object;
+
+            } else {
+                return "nothing. There isn't a " + object + " here";
+            }
+        },
+        "pastForm": "took",
+        "hasArgs": true
     },
 
-    // look
-    function(object) {
-        if (!(aroundMe[0])) {
-            return "nothing";
-        } else if (aroundMe.length == 1) {
-            return "the " + aroundMe[0].toString();
-        }
-        
-        return aroundMe.join(", ");
+    "read": {
+        "action": function(object) {
+            // readable things should be assigned content beforehand and put into storyline.json as variables
+
+            return ", " + myLocation.objects[myLocation.objects.indexOf(object)].words; // this is sketchy; needs work
+        },
+        "pastform": "read",
+        "hasArgs": true
     },
 
-    // help
-    function(object) {
-        return "You can go, take, look, and read";
+    "look": {
+        "action": function(object) {
+            if (!(aroundMe[0])) {
+                return "nothing";
+            } else if (aroundMe.length == 1) {
+                return "the " + aroundMe[0].toString();
+            }
+            
+            return aroundMe.join(", ");
+        },
+        "pastForm": "saw",
+        "hasArgs": false
+    },
+
+    "help": {
+        "action": function(object) {
+            return "You can go, take, look, and read";
+        },
+        "pastform": "helped",
+        "hasArgs": false
     }
-];
+};
 
-var inquiries = ["where","who","why","what"];
-var inquiriesAnswers = [
-    // where
-    function(){
-        cango = myFutures.join(", ");
+var inquiriesList = ["where", "who", "why", "what"];
+var inquiries = {
+    
+    "where": function(){
+        cango = myFutures.join(", the");
         
-        response = "You are in the " + myLocation + ". You can go to " + cango;
+        response = "You are in the " + myLocation + ". You can go to the " + cango + ". ";
 
         if (myFutures.length == 0) {
             response = "You are in the " + myLocation + ". You can't go anywhere.";
@@ -116,22 +128,25 @@ var inquiriesAnswers = [
         return response;
     },
 
-    // who
-    function(){
+    "who": function(input){
+        if (input.indexOf("you") > -1) {
+            return "I'm Aurelia, and I know you. For now, I can't tell you much else.";
+        }
+
         return "Well, that's for you to find out.";
     },
 
-    // why
-    function(){
+    "why": function(){
         return "Why are you here? Why are you anything? What's the world? All good questions, all without answers.";
     },
 
-    // what
-    function(hand){
-        // should this be what's in hand or what's in the room? For now, the latter by default
+    "what": function(input){
+        
         message = "There's ";
 
-        if (includes(hand, ["hand", "have", "hold"])) {
+        console.log(input);
+        if (input.indexOf("hand") > -1 || input.indexOf("hold") > 1 || input.indexOf("have") > -1) {
+
             message = "You have ";
 
             message += onHand.join(", ");
@@ -151,21 +166,9 @@ var inquiriesAnswers = [
 
         return message + ". ";
     },
-];
-
-var myLocation = "beginning"; // reference to a current location
-var myFutures = ["commons"]; // futures
-var onHand = []; // a list of items on hand
-var aroundMe = []; // list of items in the environment
-var myHistory = []; // a list of locations I was before
-
-var commandList = ["take", "read", "look", "help", "go"]; // "go" is always at the end
-var commandNoArgs = ["restart"];
-var commandPast = ["took", "read", "saw", "helped", "went"];
-var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some", "now", "then", "again"];
+};
 
 function stripPunc(word) {
-    // only operates on single words
     return word.replace(/[.,\/!?;:()]/g,"");
 }
 
@@ -176,33 +179,36 @@ function includes(str, array) {
     sctr = str.toLowerCase();
 
     array.forEach(function(key){
-        if (sctr.indexOf(key) >= 0) {
+        if (sctr.split(" ").indexOf(key) > -1) {
             inv = key;
-        }
-    });
+        }   
+    });     
 
     return inv;
-}
+} 
 
 function narrate(narrationList) {
     narrated = 0;
 
     narrationInterval = setInterval(function(){
-        
+
         line = narrationList[narrated];
 
-        var newPrompter = new Message({ content: line });
-        startmessages.add(newPrompter);
+        var newLine = new Message({ content: line });
 
-        var m = new MessageView({ model: newPrompter });
-        messageBox.$el.append(m.render().$el);
+        var q = new MessageView({ model: newLine });
+        messageBox.$el.append(q.render().$el);
 
         var messageList = $("#messagebox");
         messageList.scrollTop(messageList[0].scrollHeight);
-            
+
         narrated ++;
 
-    }, 2200);
+        if (narrated == narrationList.length) {
+            clearInterval(narrationInterval);
+        }
+
+    }, 2300);
 
 };
 
@@ -211,45 +217,43 @@ function parseMessage(input) {
     // given an input phrase, this parses it into a JS object
  
     // but first capture questions as exceptions
-    if (includes(input, inquiries)) {
-        message = inquiriesAnswers[inquiries.indexOf(includes(input, inquiries))](input);
+    if (includes(input, inquiriesList)) {
+        message = inquiries[includes(input, inquiriesList)](input);
 
         return message;
     }
 
     // and capture the skip keyword
-    if (input.trim().toLowerCase() == "skip") {
+    if (input.trim().toLowerCase() == "stop") {
         clearInterval(narrationInterval);
 
         return null;
     }
-
-    // will later also have to intercept questions, like "who are you?" and "where am I?"
 
     var inputObject = {
         "actions": [],
         "objects": []
     };
 
-    input = input.toLowerCase().split(" ");
+		input.toLowerCase().split(" ").forEach(function(word) {
+        
+        if (!includes(word, trivials)) {
+        
+          console.log(word);
+            if (commands[word]) {
+               
+                if (!commands[word].hasArgs) {
+                    inputObject.objects.push("_null");
+                }
 
-    for (i = 0; i < input.length; i++) {
-        key = input[i];
+                inputObject.actions.push(stripPunc(word));
 
-        if (trivials.indexOf(key) != -1) {
-            // do nothing
-        } else if (commandList.indexOf(key) != -1) {
-            if (commandNoArgs.indexOf(key) != -1) {
-                inputObject.objects.push("_null");
+            } else {
+                inputObject.objects.push(stripPunc(word));
             }
-            inputObject.actions.push(stripPunc(key));
-
-            // also, if the action does not require an objective than push a "_null" here to objects. 
-
-        } else {
-            inputObject.objects.push(stripPunc(key));
         }
-    }
+
+    });
    
     return inputObject;
 }
@@ -273,9 +277,9 @@ function returnMessage(inputObject) {
     actions = inputObject.actions;
     objects = inputObject.objects;
 
-    if (actions.length != objects.length) {
-        return "Sorry? You're not really making sense.";
-    }
+    // if (actions.length != objects.length) {
+    //     return "Sorry? You're not really making sense.";
+    // }
 
     // make it into a less insane format
     inputList = [];
@@ -296,38 +300,35 @@ function returnMessage(inputObject) {
 
     // takes care of movement
     var isRepeat = 0;
-    
-    if (actions.indexOf("go") > -1) {
+
+    if (includes("go", actions)) {
 
         if (myFutures.indexOf(objects[actions.indexOf("go")]) != -1) {
             myHistory.push(myLocation);
             myLocation = objects[actions.indexOf("go")];
             message += "You are now in the " + myLocation;
             
-            locationObject = getStorylineJSON(myLocation);
+            locationObject = storyline[myLocation];
 
             aroundMe = locationObject.objects;
             myFutures = locationObject.futures;
 
             // do some narration
-            narrationList = storyline[rawLocationlist.indexOf(myLocation)].narration;
-
-            narrate(narrationList);
+            narrate(locationObject.narration);
 
         } else {
             message += "You can't go there. Sorry.";
         }
 
-        isRepeat += 1;
+        isRepeat ++;
     }
 
     // takes care of non-movement actions
+    var actionCount = 0;
     actions.forEach(function(word){
         if (word != "go") {
-            // for each word, do
-            // commands.$word(inputObject.objects[inputObject.actions.$current-index]);
-            
-            result = commands[commandList.indexOf(word)](objects[actions.indexOf(word)]);
+      
+            result = commands[word].action(objects[actionCount]);
 
             if (isRepeat >= 1 || actions.length >= 3) {
                 message += ", ";
@@ -335,15 +336,15 @@ function returnMessage(inputObject) {
             if (actions.length == isRepeat + 1 && actions.length > 1) {
                 message += " and ";
             }
-            // must add oxford comma here... #TODO
             
-            if (objects[actions.indexOf(word)] != "_null") {
-                message += "You " + commandPast[commandList.indexOf(word)] + " " + result;
+            if (objects[actionCount] != "_null") {
+                message += "You " + commands[word].pastForm + " " + result;
             } else {
                 message += result;
             }
 
-            isRepeat += 1;
+            isRepeat ++;
+            actionCount ++;
         }
     });
 
@@ -357,7 +358,6 @@ function returnMessage(inputObject) {
         message = "I can't quite understand...";
     }
 
-    return message + ".";
+    return message + ". ";
 }
-
 

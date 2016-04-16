@@ -70,20 +70,22 @@ var MessagesView = Backbone.View.extend({
         var messageList = $("#messagebox");
         messageList.scrollTop(messageList[0].scrollHeight);
  
-        setTimeout(function(){
+        if (reply != "_null") {
+
+            var newReplyPrompter = new Message({ content: reply });
+            startmessages.add(newReplyPrompter);
+
+            setTimeout(function(){
           
-            if (reply != "_null") {
-                // post reply
-                var newReplyPrompter = new Message({ content: reply });
-                startmessages.add(newReplyPrompter);
-                
                 var n = new MessageView({ model: newReplyPrompter });
                 self.$el.append(n.render().$el);
-            }
 
-            var messageList = $("#messagebox");
-            messageList.scrollTop(messageList[0].scrollHeight);
-        }, 1400);
+                var messageList = $("#messagebox");
+                messageList.scrollTop(messageList[0].scrollHeight);
+            
+            }, 1500);
+
+        }
 
         return this;
     },
@@ -144,7 +146,7 @@ var eventStack = _.extend({}, Backbone.Events)
 
 // instantiate Models
 var startmessages = new Messages();
-narrate(storyline[1].narration);
+narrate(storyline["beginning"].narration);
 
 // instantiate DOM elements
 var messageBox = new MessagesView({ collection: startmessages, eventStack: eventStack });
