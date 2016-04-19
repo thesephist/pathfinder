@@ -3,57 +3,130 @@
 
 // Also later make a reserve of more than a dozen phrases for syntax errors, so it doesn't get repetitive
 
+var storyline = {
+
+    "beginning": {
+        "fullName": "beginning",
+        "objects": [],
+        "narration": [
+            "Wait",
+            "Is... is that you?",
+            "Remmi?",
+            "Hold on, I think it's you",
+            "Oh, god, please let it be you...",
+            "It is! It is you!",
+            "Please, don't turn away. Don't leave me. Just give me one second.",
+            "I need to know it's you, for sure.",
+            "...",
+            "Okay, I'm alright.",
+            "I'm guessing you're pretty confused right now. That's okay.",
+            "You probably won't remember me, but I know you.",
+            "I'm Aurelia. I used to be so close to you... but you fell... you fell Asleep.",
+            "You're in a coma, Remmi. I hope you can here me.",
+            "We're here, and we're here to help you out. But I don't know where you are.",
+            "The best solution we have is just for you to look around. See what you can do."
+        ],
+        "futures": ["atrium"]
+    },
+
+    "atrium": {
+        "fullName": "atrium",
+        "objects": ["map", "candle", "wineglass"],
+        "narration": [
+          "Now, here's something!",
+          "This is the atrium. Something like a great hall.",
+          "From here, you can try to find other ways out of here."
+        ],
+        "futures": ["oblivion", "nirvana", "light"]
+    },
+    
+    "oblivion": {
+        "fullName": "room of oblivion",
+        "objects": ["photo", "novel"],
+        "narration": [
+          "Welcome to the Room of Oblivion."
+        ],
+        "futures": ["hallway", "staircase", "atrium", "laboratory"]
+    },
+    
+    "nirvana": {
+        "fullName": "room of nirvana",
+        "objects": ["cat's cradle", "phonograph"],
+        "narration": [
+          "Welcome to the Room of Nirvana",
+          "Are you feeling it yet?"
+        ],
+        "futures": ["staircase", "atrium", "darkroom"]
+    },
+    
+    "light": {
+        "fullName": "room of light",
+        "objects": ["flashlight", "book", "typewriter", "paintbrush"],
+        "narration": [
+          "Welcome to Light."
+        ],
+        "futures": ["atrium", "corridor", "darkroom"]
+    },
+    
+    "hallway": {
+        "fullName": "hallway of time",
+        "objects": ["picture frames"],
+        "narration": [
+          "I wonder what's in this hallway."
+        ],
+        "futures": ["oblivion"]
+    },
+
+    "staircase": {
+        "fullName": "staircase of infinity",
+        "objects": ["picture frames"],
+        "narration": [
+          "Careful.",
+          "Don't fall down the staircase."
+        ],
+        "futures": ["oblivion", "nirvana"]
+    },
+
+    "laboratory": {
+        "fullName": "laboratory",
+        "objects": ["flask", "vial", "note"],
+        "narration": [
+          "Yes, it's a lab. But who's?"
+        ],
+        "futures": ["oblivion"]
+    },
+
+    "darkroom": {
+        "fullName": "darkroom",
+        "objects": ["oil lamp"],
+        "narration": [
+          "You might want to use something to light the place up."
+        ],
+        "futures": ["light"]
+    },
+
+    "corridor": {
+        "fullName": "corridor",
+        "objects": ["dust"],
+        "narration": [
+          "As far as corridors go, this one's pretty unique."
+        ],
+        "futures": ["light"]
+    }
+
+};
+
 var myLocation = "beginning"; // reference to a current location
-var myFutures = ["commons"]; // futures
-var onHand = []; // a list of items on hand
+var myRawFutures = ["atrium"]; // futures
+var myFutures = myRawFutures.map(function(name) {
+    return storyline[name].fullName;
+});
+var onHand = ["matchstick"]; // a list of items on hand
 var aroundMe = []; // list of items in the environment
 var myHistory = []; // a list of locations I was before
 
-var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some", "now", "then", "again"];
+var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some", "now", "then", "again", "room", "time", "infinity", "of"];
 var narrationInterval;
-
-var storyline = {
-
-    "beginning": { // will need a more creative name here
-        "objects": ["lighter","bag"],
-        "narration": [
-                        "Wait",
-                        "Is... is that you?",
-                        "Remmi?",
-                        "Hold on, I think it's you",
-                        "Oh, god, please let it be you...",
-                        "It is! It is you!",
-                        "Please, don't turn away. Don't leave me. Just give me one second.",
-                        "I need to know it's you, for sure.",
-                        "...",
-                        "Okay, I'm alright.",
-                        "I'm guessing you're pretty confused right now. That's okay.",
-                        "You probably won't remember me, but I know you.",
-                        "I'm Aurelia. I used to be so close to you... but you fell... you fell Asleep.",
-                        "You're in a coma, Remmi. I hope you can here me.",
-                        "We're here, and we're here to help you out. But I don't know where you are.",
-                        "The best solution we have is just for you to look around. See what you can do."
-                      ],
-        "futures": ["commons"]
-    },
-
-    "commons": {
-        "objects": ["book","candle","water","console"],
-        "narration": [
-                        "Welcome",
-                        "From here, you can go to other major rooms of this world."
-                     ],
-        "futures": ["overture"]
-    },
-
-    "overture": {
-        "objects": ["candle","phone"],
-        "narration": [
-                        "Welcome to Overture, the beginning of it all!"
-                     ],
-        "futures": []
-    }
-};
 
 var commands = {
     
@@ -117,7 +190,8 @@ var inquiriesList = ["where", "who", "why", "what"];
 var inquiries = {
     
     "where": function(){
-        cango = myFutures.join(", the");
+
+        cango = myFutures.join(", ");
         
         response = "You are in the " + myLocation + ". You can go to the " + cango + ". ";
 
@@ -144,7 +218,6 @@ var inquiries = {
         
         message = "There's ";
 
-        console.log(input);
         if (input.indexOf("hand") > -1 || input.indexOf("hold") > 1 || input.indexOf("have") > -1) {
 
             message = "You have ";
@@ -239,7 +312,6 @@ function parseMessage(input) {
         
         if (!includes(word, trivials)) {
         
-          console.log(word);
             if (commands[word]) {
                
                 if (!commands[word].hasArgs) {
@@ -303,15 +375,21 @@ function returnMessage(inputObject) {
 
     if (includes("go", actions)) {
 
-        if (myFutures.indexOf(objects[actions.indexOf("go")]) != -1) {
+        if (objects[actions.indexOf("go")] == "back") {
+            objects[actions.indexOf("go")] = myHistory.pop();
+        }
+
+        if (myRawFutures.indexOf(objects[actions.indexOf("go")]) != -1) {
             myHistory.push(myLocation);
-            myLocation = objects[actions.indexOf("go")];
-            message += "You are now in the " + myLocation;
+            myLocation = storyline[objects[actions.indexOf("go")]].fullName;
             
-            locationObject = storyline[myLocation];
+            locationObject = storyline[objects[actions.indexOf("go")]];
 
             aroundMe = locationObject.objects;
-            myFutures = locationObject.futures;
+            myRawFutures = locationObject.futures;
+            myFutures = myRawFutures.map(function(name) {
+                return storyline[name].fullName;
+            });
 
             // do some narration
             narrate(locationObject.narration);

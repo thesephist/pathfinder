@@ -1,35 +1,35 @@
 // Instance-Specific Algorithm Composition encryption, or ISAC
-// Copyright Linus Lee 2015
+// Copyright Linus Lee 2015-2016
 
-var processing; // bit string in processing
+var exports = {};
 
 String.prototype.repeat = function(num) {
     return new Array(num + 1).join(this)
 }
 
-var nbit = 32; // allows for 8, 16, 32-bit ISAC encryption
-var zerofiller = "0".repeat(nbit + 1);
-var onefiller  = "1".repeat(nbit + 1);
+exports.nbit = 32; // allows for 8, 16, 32-bit ISAC encryption
+exports.zerofiller = "0".repeat(exports.nbit + 1);
+exports.onefiller  = "1".repeat(exports.nbit + 1);
 
 function rset(n) {
     rxe = new RegExp(".{1," + n.toString() + "}","g");
     return rxe;
 }
 
-function encode(words) {
+exports.encode = function(words) {
     // encodes string to binary ASCII string
     words = words.replace(/[^\x20-\x7E]+/g, ''); // take out non-ASCII characters. They cause trouble.
     wordsList = words.split("");
     bits = "";
     wordsList.forEach(function(letter) {
         mlk = "0"+parseInt(letter.charCodeAt()).toString(2);
-        bits += zerofiller.substr(0, 8 - mlk.length) + mlk;
+        bits += exports.zerofiller.substr(0, 8 - mlk.length) + mlk;
     });
     
     return bits;
 }
 
-function decode(bits) {
+exports.decode = function(bits) {
     // decodes binary ASCII to string
     words = "";
     bitsList = bits.match(rset(8));
@@ -40,46 +40,46 @@ function decode(bits) {
 }
 
 // G elements
-function adder(n) { // formerly "inverse", when applied only to 1-bit string objects
+exports.adder = function(n) { // formerly "inverse", when applied only to 1-bit string objects
     stringBits = processing.match(rset(n));
     totalBits = "";
     
     stringBits.forEach(function(bitstring) {
         e = (parseInt(bitstring, 2) + 1).toString(2);
         if (e.length<n) {
-            e=zerofiller.substr(0, n - e.length) + e
+            e=exports.zerofiller.substr(0, n - e.length) + e
         }
         if (e.length == n + 1) {
-            e = zerofiller.substr(0, n)
+            e = exports.zerofiller.substr(0, n)
         }
         totalBits += e;
     });
     
     processing = totalBits;
 }
-function rAdder(n) { // inverse function of adder()
+exports.rAdder = function(n) { // inverse function of adder()
     stringBits = processing.match(rset(n));
     totalBits = "";
     
     stringBits.forEach(function(bitstring) {
         e = "";
-        if (bitstring == zerofiller.substr(0, n)) {
-            e = onefiller.substr(0, n)}
+        if (bitstring == exports.zerofiller.substr(0, n)) {
+            e = exports.onefiller.substr(0, n)}
         else {
             e = (parseInt(bitstring, 2) - 1).toString(2);
         }
         if (e.length<n) {
-            e = zerofiller.substr(0, n - e.length) + e
+            e = exports.zerofiller.substr(0, n - e.length) + e
         }
         if (e.length == n + 1) {
-            e = zerofiller.substr(0, n);
+            e = exports.zerofiller.substr(0, n);
         }
         totalBits += e;
     });
 
     processing = totalBits;
 }
-function cycle(n) {
+exports.cycle = function(n) {
     stringBits = processing.match(rset(n));
     totalBits = "";
     
@@ -90,7 +90,7 @@ function cycle(n) {
 
     processing = totalBits;
 }
-function rCycle(n) {   
+exports.rCycle = function(n) {   
     stringBits = processing.match(rset(n));
     totalBits = "";
     
@@ -102,15 +102,14 @@ function rCycle(n) {
     processing = totalBits;
 }
 
-function reverse(n) {    
+exports.reverse = function(n) {    
     stringBits = processing.match(rset(n));
     processing = stringBits.reverse().join("");
 }
-function rReverse(n) {
-    reverse(n);
-}
 
-function split(n) {    
+exports.rReverse = exports.reverse;
+
+exports.split = function(n) {    
     bitsarray = new Array(n);
     for (i = 0; i < n; i++) {
         bitsarray[i] = ""
@@ -121,7 +120,7 @@ function split(n) {
     
     processing=bitsarray.join("");
 }
-function rSplit(n) {
+exports.rSplit = function(n) {
     bitsarray = processing.match(rset(processing.length / n));
     processing = "";
     for(i = 0; i < bitsarray.join("").length; i++) {
@@ -130,9 +129,8 @@ function rSplit(n) {
 }
 
 // Other Modules:
-var random_seed;
 
-function rs_w(keyword) {
+exports.rs_w = function(keyword) {
     // random key generator
     encodedK = encode(keyword);
     if (keyword.length * 8 != encodedK.length) {
@@ -149,7 +147,7 @@ function rs_w(keyword) {
     return random_seed.replace(/0 /g, "1 ").toString().trim();
 }
 
-function rs_g(lower, upper) {
+exports.rs_g = function(lower, upper) {
     // random key generator
     if (lower == undefined) {lower = 76}
     if (upper == undefined) {upper = 150}
@@ -159,7 +157,7 @@ function rs_g(lower, upper) {
         if(i % 2 == 0) {
             random_seed += Math.floor((Math.random() * 4)).toString();
         }else{
-            random_seed += Math.pow(2, Math.floor(Math.random() * (Math.log(nbit) / Math.log(2) + 1))).toString();
+            random_seed += Math.pow(2, Math.floor(Math.random() * (Math.log(exports.nbit) / Math.log(2) + 1))).toString();
             random_seed += " ";
         }
     }
@@ -167,7 +165,7 @@ function rs_g(lower, upper) {
     return random_seed.toString().trim();
 }
 
-function key_norm(size, key) {
+exports.key_norm = function(size, key) {
     key = parseInt(key.split(" ").join("")).toString(2);
 
     key_size = key.length;
@@ -175,45 +173,45 @@ function key_norm(size, key) {
     return key.repeat(parseInt((size - diff) / key_size)) + key.substr(0, diff);
 }
 
-function bit_norm() {
-    adder(nbit);
-    rAdder(nbit);
+exports.bit_norm = function() {
+    exports.adder(exports.nbit);
+    exports.rAdder(exports.nbit);
 }
 
-function G(binary, random_seed) {
+exports.G = function(binary, random_seed) {
     split_seed = random_seed.split(" ");
     
     processing = binary;
     bit_norm();
     split_seed.forEach(function(pair) {
-        if      (pair[0] == "0") {adder(parseInt(pair.substr(1)))}
-        else if (pair[0] == "1") {cycle(parseInt(pair.substr(1)))}
-        else if (pair[0] == "2") {reverse(parseInt(pair.substr(1)))}
-        else if (pair[0] == "3") {split(parseInt(pair.substr(1)))}
+        if      (pair[0] == "0") {exports.adder(parseInt(pair.substr(1)))}
+        else if (pair[0] == "1") {exports.cycle(parseInt(pair.substr(1)))}
+        else if (pair[0] == "2") {exports.reverse(parseInt(pair.substr(1)))}
+        else if (pair[0] == "3") {exports.split(parseInt(pair.substr(1)))}
     });
     
     return processing;
 }
 
-function r_G(binary, random_seed) {
-    split_seed = random_seed.split("").reverse().join("").split(" ");
+exports.r_G = function(binary, random_seed) {
+    split_seed = random_seed.split("").exports.reverse().join("").split(" ");
     for (i=0; i<split_seed.length; i++) {
-        split_seed[i] = split_seed[i].split("").reverse().join("");
+        split_seed[i] = split_seed[i].split("").exports.reverse().join("");
     }
 
     processing = binary;
     bit_norm();
     split_seed.forEach(function(pair) {
-        if      (pair[0] == "0") {rAdder(parseInt(pair.substr(1)))}
-        else if (pair[0] == "1") {rCycle(parseInt(pair.substr(1)))}
-        else if (pair[0] == "2") {rReverse(parseInt(pair.substr(1)))}
-        else if (pair[0] == "3") {rSplit(parseInt(pair.substr(1)))}
+        if      (pair[0] == "0") {exports.rAdder(parseInt(pair.substr(1)))}
+        else if (pair[0] == "1") {exports.rCycle(parseInt(pair.substr(1)))}
+        else if (pair[0] == "2") {exports.rReverse(parseInt(pair.substr(1)))}
+        else if (pair[0] == "3") {exports.rSplit(parseInt(pair.substr(1)))}
     });
     
     return processing;
 }
 
-function H(bits, key) {
+exports.H = function(bits, key) {
     key = key_norm(bits.length, key);
     
     result = "";
@@ -235,7 +233,7 @@ function H(bits, key) {
     return out;
 }
 
-function r_H(bits, key) {
+exports.r_H = function(bits, key) {
     key = key_norm(bits.length, key);
  
     vsum = 0;
@@ -257,7 +255,7 @@ function r_H(bits, key) {
     return result;
 }
 
-function encryptor(text, key, option) {
+exports.encryptor = function(text, key, option) {
     if (key == undefined) {
         console.warn("Please specify an encryption key");
         return false;
@@ -279,7 +277,7 @@ function encryptor(text, key, option) {
     }
 }
 
-function decryptor(binary, key, option) {
+exports.decryptor = function(binary, key, option) {
     if (option == 'hex') {
         hexinary = binary.match(rset(2));
         binary = '';
@@ -291,7 +289,7 @@ function decryptor(binary, key, option) {
     return decode(r_G(r_H(binary, key), key).toString()).split('\u0000').join("");
 }
 
-function encryptorx(words, key) {
+exports.encryptorx = function(words, key) {
     // returns binary buffer
     datastream = encryptor(words, key).match(rset(8));
     var buf = new ArrayBuffer(datastream.length);
@@ -303,7 +301,7 @@ function encryptorx(words, key) {
     return buf;
 }
 
-function decryptorx(data, key) {
+exports.decryptorx = function(data, key) {
     // takes binary data
     var buf = data;
     var view = new DataView(buf, 0);
@@ -311,7 +309,7 @@ function decryptorx(data, key) {
 
     for (i=0; i<buf.byteLength; i++) {
         bits = view[i].toString(2);
-        str += zerofiller.substr(0, 8 - bits.length) + bits;
+        str += exports.zerofiller.substr(0, 8 - bits.length) + bits;
     }
     return decryptor(str, key);
 }
