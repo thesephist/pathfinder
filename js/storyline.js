@@ -375,6 +375,11 @@ function returnMessage(inputObject) {
 
     if (includes("go", actions)) {
 
+        // check for duplicate "go"s -- only one is allowed.
+        if (actions.sort()[actions.sort().indexOf("go") + 1] == "go") {
+            return "Sorry, but you can only go to one place at a time.";
+        }
+
         if (objects[actions.indexOf("go")] == "back") {
             objects[actions.indexOf("go")] = myHistory.pop();
         }

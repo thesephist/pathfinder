@@ -70,7 +70,7 @@ var MessagesView = Backbone.View.extend({
         var messageList = $("#messagebox");
         messageList.scrollTop(messageList[0].scrollHeight);
  
-        if (reply != "_null") {
+        if (reply.indexOf("_null") == -1) {
 
             var newReplyPrompter = new Message({ content: reply });
             startmessages.add(newReplyPrompter);
