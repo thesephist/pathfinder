@@ -31,7 +31,7 @@ var storyline = {
 
     "atrium": {
         "fullName": "atrium",
-        "objects": ["map", "candle", "wineglass"],
+        "objects": ["map__static", "candle", "wineglass"],
         "narration": [
           "Now, here's something!",
           "This is the atrium. Something like a great hall.",
@@ -42,16 +42,17 @@ var storyline = {
     
     "oblivion": {
         "fullName": "room of oblivion",
-        "objects": ["photo", "novel"],
+        "objects": ["photo", "novel__readable"],
         "narration": [
           "Welcome to the Room of Oblivion."
         ],
+        "novel": "Here's a story inside a story.",
         "futures": ["hallway", "staircase", "atrium", "laboratory"]
     },
     
     "nirvana": {
         "fullName": "room of nirvana",
-        "objects": ["cat's cradle", "phonograph"],
+        "objects": ["cat's cradle", "phonograph__static"],
         "narration": [
           "Welcome to the Room of Nirvana",
           "Are you feeling it yet?"
@@ -61,10 +62,11 @@ var storyline = {
     
     "light": {
         "fullName": "room of light",
-        "objects": ["flashlight", "book", "typewriter", "paintbrush"],
+        "objects": ["flashlight", "book__readable", "typewriter", "paintbrush"],
         "narration": [
           "Welcome to Light."
         ],
+        "book": "This is simply a book",
         "futures": ["atrium", "corridor", "darkroom"]
     },
     
@@ -116,13 +118,20 @@ var storyline = {
 
 };
 
+var narratedLocations = [];
 var myLocation = "beginning"; // reference to a current location
+var myRawLocation = "beginning";
+
+
 var myRawFutures = ["atrium"]; // futures
 var myFutures = myRawFutures.map(function(name) {
     return storyline[name].fullName;
 });
 var onHand = ["matchstick"]; // a list of items on hand
 var aroundMe = []; // list of items in the environment
+var staticAroundMe = [];
+var readableAroundMe = [];
+
 var myHistory = []; // a list of locations I was before
 
 var trivials = ["the", "a", "to", "at", "into", "in", "and", "but", "or", "that", "this", "some", "now", "then", "again", "room", "time", "infinity", "of"];
@@ -137,7 +146,7 @@ var commands = {
 
     "take": {
         "action": function(object) {
-            if (aroundMe.indexOf(object) != -1) {
+            if (aroundMe.indexOf(object) != -1 && staticAroundMe.indexOf(object) == -1) {
                 onHand.push(object);
             
                 objIndex = aroundMe.indexOf(object);
@@ -146,7 +155,7 @@ var commands = {
                 return "the " + object;
 
             } else {
-                return "nothing. There isn't a " + object + " here";
+                return "nothing. There isn't a " + object + " here you can take";
             }
         },
         "pastForm": "took",
@@ -155,11 +164,14 @@ var commands = {
 
     "read": {
         "action": function(object) {
-            // readable things should be assigned content beforehand and put into storyline.json as variables
 
-            return ", " + myLocation.objects[myLocation.objects.indexOf(object)].words; // this is sketchy; needs work
+            if (readableAroundMe.indexOf(object) != -1) {
+                return "it. It says: '" + storyline[myRawLocation][object] + "'";
+            }
+
+            return "nothing. You can't read that"
         },
-        "pastform": "read",
+        "pastForm": "read",
         "hasArgs": true
     },
 
@@ -260,28 +272,32 @@ function includes(str, array) {
     return inv;
 } 
 
-function narrate(narrationList) {
+function narrate(narrationList, loc) {
     narrated = 0;
 
-    narrationInterval = setInterval(function(){
+    if (narratedLocations.indexOf(loc) == -1) {
+        narrationInterval = setInterval(function(){
 
-        line = narrationList[narrated];
+            line = narrationList[narrated];
 
-        var newLine = new Message({ content: line });
+            var newLine = new Message({ content: line });
 
-        var q = new MessageView({ model: newLine });
-        messageBox.$el.append(q.render().$el);
+            var q = new MessageView({ model: newLine });
+            messageBox.$el.append(q.render().$el);
 
-        var messageList = $("#messagebox");
-        messageList.scrollTop(messageList[0].scrollHeight);
+            var messageList = $("#messagebox");
+            messageList.scrollTop(messageList[0].scrollHeight);
 
-        narrated ++;
+            narrated ++;
 
-        if (narrated == narrationList.length) {
-            clearInterval(narrationInterval);
-        }
+            if (narrated == narrationList.length) {
+                clearInterval(narrationInterval);
+            }
 
-    }, 2300);
+        }, 2300);
+        
+        narratedLocations.push(loc);
+    }
 
 };
 
@@ -382,22 +398,39 @@ function returnMessage(inputObject) {
 
         if (objects[actions.indexOf("go")] == "back") {
             objects[actions.indexOf("go")] = myHistory.pop();
+            message += "You moved back.";
         }
 
         if (myRawFutures.indexOf(objects[actions.indexOf("go")]) != -1) {
             myHistory.push(myLocation);
             myLocation = storyline[objects[actions.indexOf("go")]].fullName;
+            myRawLocation = objects[actions.indexOf("go")];
             
             locationObject = storyline[objects[actions.indexOf("go")]];
 
-            aroundMe = locationObject.objects;
+            aroundMe = locationObject.objects.map(function(obj){return obj.split("__")[0]});
+            staticAroundMe = aroundMe.filter(function(obj) {
+                if (locationObject.objects[aroundMe.indexOf(obj)].indexOf("static") > -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            readableAroundMe = aroundMe.filter(function(obj) {
+                if (locationObject.objects[aroundMe.indexOf(obj)].indexOf("readable") > -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
             myRawFutures = locationObject.futures;
             myFutures = myRawFutures.map(function(name) {
                 return storyline[name].fullName;
             });
 
             // do some narration
-            narrate(locationObject.narration);
+            narrate(locationObject.narration, myLocation);
 
         } else {
             message += "You can't go there. Sorry.";

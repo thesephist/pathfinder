@@ -146,7 +146,7 @@ var eventStack = _.extend({}, Backbone.Events)
 
 // instantiate Models
 var startmessages = new Messages();
-narrate(storyline["beginning"].narration);
+narrate(storyline["beginning"].narration, "beginning");
 
 // instantiate DOM elements
 var messageBox = new MessagesView({ collection: startmessages, eventStack: eventStack });
