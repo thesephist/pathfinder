@@ -275,6 +275,10 @@ function includes(str, array) {
 function narrate(narrationList, loc) {
     narrated = 0;
 
+    $input = $("#inputline");
+
+    $input.attr("disabled", true);
+
     if (narratedLocations.indexOf(loc) == -1) {
         narrationInterval = setInterval(function(){
 
@@ -292,6 +296,8 @@ function narrate(narrationList, loc) {
 
             if (narrated == narrationList.length) {
                 clearInterval(narrationInterval);
+                $input.attr("disabled", false);
+                $input.focus();
             }
 
         }, 2300);
@@ -310,13 +316,6 @@ function parseMessage(input) {
         message = inquiries[includes(input, inquiriesList)](input);
 
         return message;
-    }
-
-    // and capture the skip keyword
-    if (input.trim().toLowerCase() == "stop") {
-        clearInterval(narrationInterval);
-
-        return null;
     }
 
     var inputObject = {

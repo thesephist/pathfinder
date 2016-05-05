@@ -146,7 +146,6 @@ var eventStack = _.extend({}, Backbone.Events)
 
 // instantiate Models
 var startmessages = new Messages();
-narrate(storyline["beginning"].narration, "beginning");
 
 // instantiate DOM elements
 var messageBox = new MessagesView({ collection: startmessages, eventStack: eventStack });
@@ -154,6 +153,8 @@ var inputBox = new InputView({ eventStack: eventStack });
 
 $("#gamebox").append(messageBox.render().$el);
 $("#gamebox").append(inputBox.render().$el);
+
+narrate(storyline["beginning"].narration, "beginning");
 
 
 

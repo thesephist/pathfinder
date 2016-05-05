@@ -25,6 +25,8 @@
           <!-- controls will go here -->
           <!-- JANKY AF solution for now -->
           <a style="font-size:16px;text-decoration:none;position:fixed;top:20px;left:20px;color:white;z-index:10" href="#" onclick="if($('#audiobox > audio')[0].paused){$('#audiobox > audio')[0].play()}else{$('#audiobox > audio')[0].pause()}">PLAY/PAUSE MUSIC</a>
+          <!-- temporary -->
+          <a style="font-size:16px;text-decoration:none;position:fixed;top:50px;left:20px;color:white;z-index:10" href="#" onclick="clearInterval(narrationInterval);$('#inputline').attr('disabled',false)">STOP NARRATION</a>
         </div>
       </div>
       <div id="gamebox">

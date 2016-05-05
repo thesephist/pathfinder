@@ -79,7 +79,7 @@ html, body, div, iframe, p{margin:0;padding:0}h1, h2, h3{font-weight:normal}img{
     box-sizing:border-box;
     font-size:20px;
     line-height:1.3em;
-    transition:border-color 0.5s;
+    transition:border-color 0.5s,opacity 0.3s;
     border:none;
     border-bottom:1px solid grey;
     font-family:"Covered By Your Grace",sans-serif;
@@ -90,6 +90,11 @@ html, body, div, iframe, p{margin:0;padding:0}h1, h2, h3{font-weight:normal}img{
 #inputbox > input:focus {
     outline:none;
     border-bottom:1px solid black;
+}
+
+#inputbox > input[disabled="disabled"] {
+    opacity:0.35;
+    cursor:not-allowed;
 }
 
 @media only screen and (max-width:700px) {
