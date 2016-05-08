@@ -44,7 +44,9 @@ var storyline = {
         "fullName": "room of oblivion",
         "objects": ["photo", "novel__readable"],
         "narration": [
-          "Welcome to the Room of Oblivion."
+          "Here's the Room of Oblivion.",
+          "You see a river of memories flowing by, flickers of light here and there...",
+          "Along the walls, there are some doors you can see."
         ],
         "novel": "Here's a story inside a story.",
         "futures": ["hallway", "staircase", "atrium", "laboratory"]
@@ -54,8 +56,9 @@ var storyline = {
         "fullName": "room of nirvana",
         "objects": ["cat's cradle", "phonograph__static"],
         "narration": [
-          "Welcome to the Room of Nirvana",
-          "Are you feeling it yet?"
+          "There's a calming feeling that's coming over you.",
+          "You look around, and inside a huge, resonant hall of a room, in the center, you see a water lily.",
+          "You walk up to the flower, and look inside to find a soft, pale glow and a quiet musical tone eminating."
         ],
         "futures": ["staircase", "atrium", "darkroom"]
     },
@@ -64,7 +67,8 @@ var storyline = {
         "fullName": "room of light",
         "objects": ["flashlight", "book__readable", "typewriter", "paintbrush"],
         "narration": [
-          "Welcome to Light."
+          "This is a pretty simple room.",
+          "There are some picture frames here, and some stuff to read."
         ],
         "book": "This is simply a book",
         "futures": ["atrium", "corridor", "darkroom"]
