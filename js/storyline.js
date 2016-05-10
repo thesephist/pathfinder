@@ -474,7 +474,7 @@ function returnMessage(inputObject) {
 
     // if no action, ask again
     if (actions.length == 0) {
-        message = "I can't quite understand...";
+        message = "I can't quite understand. Say 'help' to get some clues.";
     }
 
     return message + ". ";

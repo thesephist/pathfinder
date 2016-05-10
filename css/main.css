@@ -97,6 +97,30 @@ html, body, div, iframe, p{margin:0;padding:0}h1, h2, h3{font-weight:normal}img{
     cursor:not-allowed;
 }
 
+#playpause {
+		font-size:28px;
+    text-decoration:none;
+    position:fixed;
+    top:20px;
+    left:20px;
+    color:#aaa;
+    z-index:10;
+    font-family:"Material Icons";
+    font-weight:normal;
+    font-style:normal;
+    display:inline-block;
+    line-height:1;
+    text-transform:none;
+    letter-spacing:normal;
+    word-wrap:normal;
+    white-space:nowrap;
+    direction:ltr;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    -moz-osx-font-smoothing:grayscale;
+    font-feature-settings: "liga";
+}
+
 @media only screen and (max-width:700px) {
     // mobile media query stuff
     #ui-settings {

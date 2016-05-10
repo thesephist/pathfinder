@@ -5,28 +5,27 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="author" content="Linus Lee"/>
-    <style><!--#include virtual="/pathfinder/css/main.css"--></style>
-    <link rel="apple-touch-icon" href="/pathfinder/assets/pathfinder.png">
-    <link rel="shortcut icon" type="image/x-icon" href="/pathfinder/assets/pf.ico">
-    <script src="/pathfinder/js/underscore.js"></script>
-    <script src="/pathfinder/js/jquery.js"></script>
-    <script src="/pathfinder/js/backbone.js"></script>
+    <style><!--#include virtual="/inactives/pathfinder/css/main.css"--></style>
+    <link rel="apple-touch-icon" href="/inactives/pathfinder/assets/inactives/pathfinder.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/inactives/pathfinder/assets/pf.ico">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="/inactives/pathfinder/js/underscore.js"></script>
+    <script src="/inactives/pathfinder/js/jquery.js"></script>
+    <script src="/inactives/pathfinder/js/backbone.js"></script>
   </head>
   <body>
-    <!-- content here -->
-    <!-- will be dynamically generated -->
 
     <div id="otherworld">
-      <div id="audiobox"> <!-- for now, not autoplay, thank god. -->
-        <audio loop src="/pathfinder/soundtrack/1.mp3"> <!-- controls should be removed and replaced with a custom menu later -->
+      <div id="audiobox">
+        <audio loop autoplay src="/inactives/pathfinder/soundtrack/soundtrack.mp3"> <!-- controls should be removed and replaced with a custom menu later -->
           Audio is not supported in your browser.
         </audio>
         <div id="audio-controls">
           <!-- controls will go here -->
           <!-- JANKY AF solution for now -->
-          <a style="font-size:16px;text-decoration:none;position:fixed;top:20px;left:20px;color:white;z-index:10" href="#" onclick="if($('#audiobox > audio')[0].paused){$('#audiobox > audio')[0].play()}else{$('#audiobox > audio')[0].pause()}">PLAY/PAUSE MUSIC</a>
-          <!-- temporary -->
-          <a style="font-size:16px;text-decoration:none;position:fixed;top:50px;left:20px;color:white;z-index:10" href="#" onclick="clearInterval(narrationInterval);$('#inputline').attr('disabled',false)">STOP NARRATION</a>
+          <a id="playpause" href="#" onclick="if($('#audiobox > audio')[0].paused){$('#audiobox > audio')[0].play();this.innerText='volume_up'}else{$('#audiobox > audio')[0].pause();this.innerText='volume_off'}">volume_off</a>
+          <!-- for dev -->
+          <a style="display:none;font-size:16px;text-decoration:none;position:fixed;top:50px;left:20px;color:white;z-index:10" href="#" onclick="clearInterval(narrationInterval);$('#inputline').attr('disabled',false)">STOP NARRATION</a>
         </div>
       </div>
       <div id="gamebox">
@@ -34,9 +33,9 @@
     </div>
     
   <script>
-    <!--#include virtual="/pathfinder/js/storyline.js" -->
-    <!--#include virtual="/pathfinder/js/logic.js" -->
+    <!--#include virtual="/inactives/pathfinder/js/storyline.js" -->
+    <!--#include virtual="/inactives/pathfinder/js/logic.js" -->
   </script>
-  <script src="/pathfinder/js/v.js"></script>
+  <script src="/inactives/pathfinder/js/v.js"></script>
   </body>
 </html>
